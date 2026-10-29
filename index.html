@@ -1,0 +1,800 @@
+<title>마이셀 특공대</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gaegu&display=swap">
+<style>
+/* Layout: 수조 속 실험실 — 상단 브랜드 바 + 단계 탭 + 한 화면 스테이지 카드 */
+:root{
+  --water:#e6f3f6;      /* 바탕: 맑은 물 */
+  --panel:#ffffff;
+  --ink:#16344c;        /* 본문 글자: 깊은 바다 남색 */
+  --muted:#5b7486;
+  --line:#c9dfe6;
+  --head:#2b78d0;       /* 친수성 머리: 파란 구형 */
+  --tail:#d9821f;       /* 친유성 꼬리: 탄화수소 사슬 */
+  --stain:#8b6b2e;      /* 기름때 */
+  --ok:#23946a;
+  --alert:#d8483f;
+  --violet:#7a4fc4;
+  --soft-head:#e3eefb;
+  --soft-tail:#fbeedd;
+  --soft-ok:#e2f4ec;
+  --soft-alert:#fbe7e5;
+  --font:'a시네마L','a시네마M','a시네마','aCinemaL','Gaegu','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box;font-weight:400 !important;font-family:var(--font)}
+body{background:var(--water);color:var(--ink);font-size:18px;line-height:1.6}
+button,input{font:inherit;color:inherit}
+.hb{color:var(--head)} .ht{color:var(--tail)} .hk{color:var(--ok)} .ha{color:var(--alert)} .hv{color:var(--violet)} .hs{color:var(--stain)}
+.wrap{max-width:980px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 40px}
+
+/* 상단 바 */
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.title h1{margin:0;font-size:1.9rem;line-height:1.2;text-wrap:balance}
+.title p{margin:2px 0 0;color:var(--muted);font-size:1rem}
+.brand{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px 12px;margin-left:auto}
+.brand .name{font-size:1.15rem;letter-spacing:.06em;color:var(--head);line-height:1.1}
+.brand .name span{color:var(--ok)}
+.brand .mail{font-size:.9rem;color:var(--muted);user-select:all}
+
+/* 탭 */
+.tabs{display:flex;gap:6px;overflow-x:auto;margin:14px 0 12px;padding-bottom:4px}
+.tab{flex:0 0 auto;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:6px 14px;cursor:pointer;font-size:1rem;color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--head);border-color:var(--head);color:#fff}
+.tab:disabled{opacity:.45;cursor:not-allowed}
+.tab .st{color:var(--ok)}
+.tab[aria-selected="true"] .st{color:#d9ffe9}
+
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px}
+.stage h2{margin:0 0 6px;font-size:1.55rem;line-height:1.25}
+.stage h3{margin:14px 0 6px;font-size:1.2rem;color:var(--head)}
+.lead{color:var(--muted);margin:0 0 10px}
+.row{display:flex;gap:16px;flex-wrap:wrap}
+.row>*{min-width:0}
+.col{flex:1 1 300px}
+.btn{border:0;border-radius:12px;padding:9px 18px;background:var(--head);color:#fff;cursor:pointer;font-size:1.05rem}
+.btn:hover{filter:brightness(1.07)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.alt{background:var(--soft-head);color:var(--head)}
+.btn.ok{background:var(--ok)}
+.btn.warn{background:var(--alert)}
+.btn:focus-visible,.tab:focus-visible,.part:focus-visible,.opt:focus-visible{outline:3px solid var(--tail);outline-offset:2px}
+.msg{border-radius:12px;padding:9px 13px;margin:10px 0;font-size:1rem}
+.msg.ok{background:var(--soft-ok);color:var(--ok)}
+.msg.bad{background:var(--soft-alert);color:var(--alert)}
+.msg.info{background:var(--soft-head);color:var(--head)}
+.note{margin-top:12px;border:1px dashed var(--violet);border-radius:12px;padding:6px 12px;font-size:.95rem}
+.note summary{cursor:pointer;color:var(--violet)}
+.checks{list-style:none;padding:0;margin:8px 0;display:grid;gap:4px;font-size:1rem}
+.checks li::before{content:"○ ";color:var(--muted)}
+.checks li.on::before{content:"● ";color:var(--ok)}
+.checks li.on{color:var(--ok)}
+
+/* 브리핑 */
+.brief-hero{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center}
+.brief-hero svg{width:100%;height:auto;max-width:100%}
+.mods{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0}
+.mod{border:1px solid var(--line);border-radius:14px;padding:10px;font-size:.95rem}
+.mod b{display:block;font-size:1.1rem;color:var(--head)}
+.field{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}
+.field input{border:1px solid var(--line);border-radius:10px;padding:7px 10px;width:170px;background:#fbfeff}
+
+/* 모듈1 조립 */
+.tray{display:flex;gap:10px;flex-wrap:wrap;min-height:84px;border:1px dashed var(--line);border-radius:14px;padding:10px;background:#f7fbfc}
+.part{touch-action:none;user-select:none;cursor:grab;border:2px solid transparent;border-radius:14px;background:var(--panel);padding:6px 10px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.9rem;box-shadow:0 2px 0 var(--line)}
+.part.sel{border-color:var(--tail)}
+.part svg{display:block}
+.ghost{position:fixed;pointer-events:none;z-index:50;opacity:.85;transform:translate(-50%,-50%)}
+.bench{display:flex;align-items:center;justify-content:center;gap:0;margin:14px 0;flex-wrap:wrap}
+.slot{min-width:140px;min-height:92px;border:2px dashed var(--muted);border-radius:16px;display:flex;align-items:center;justify-content:center;text-align:center;padding:6px;font-size:.92rem;color:var(--muted);cursor:pointer;background:#fbfeff}
+.slot.filled{border-style:solid;border-color:var(--ok);color:var(--ink);cursor:default}
+.slot.hover{background:var(--soft-tail)}
+.bond{width:22px;height:4px;background:var(--muted)}
+canvas#tension{width:100%;height:auto;border-radius:14px;background:#f4fafc;border:1px solid var(--line);display:block}
+.ctrl{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:10px 0}
+.ctrl input[type=range]{width:200px;accent-color:var(--head)}
+.readout{font-variant-numeric:tabular-nums}
+
+/* 모듈2 */
+#micelleSvg{width:100%;max-width:560px;height:auto;display:block;margin:0 auto;touch-action:manipulation}
+.mol{cursor:pointer}
+.round-tag{display:inline-block;background:var(--soft-tail);color:var(--tail);border-radius:999px;padding:1px 12px;font-size:.95rem}
+
+/* 모듈3 */
+.match{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.card{border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.card .t{font-size:1.1rem}
+.card .d{font-size:.92rem;color:var(--muted)}
+.card .ch{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+.card .ch button{border:1px solid var(--line);background:#fbfeff;border-radius:10px;padding:4px 12px;cursor:pointer;font-size:.95rem}
+.card.right{border-color:var(--ok);background:var(--soft-ok)}
+.card .fb{font-size:.92rem;margin-top:6px}
+.cmp{width:100%;border-collapse:collapse;font-size:.95rem}
+.cmp th,.cmp td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.cmp th{background:#f2f8fa;color:var(--head)}
+.tablebox{overflow-x:auto}
+.rinse{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
+.gauge{height:30px;border-radius:999px;background:#eef4f6;border:1px solid var(--line);overflow:hidden}
+.gauge i{display:block;height:100%;width:0;background:linear-gradient(90deg,#f0b35a,var(--alert));transition:width .15s}
+.lamp{display:inline-block;width:14px;height:14px;border-radius:50%;background:#cfd9de;vertical-align:-1px;margin-right:6px}
+.lamp.on{background:var(--alert);box-shadow:0 0 0 4px var(--soft-alert);animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.4}}
+.dash{list-style:none;padding:0;margin:0;display:grid;gap:5px;font-size:.97rem}
+.dash li{color:var(--muted)}
+.dash li.on{color:var(--alert)}
+.scalp{width:100%;height:auto;max-width:280px;display:block;margin:0 auto}
+.shake{animation:shk .2s}
+@keyframes shk{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+
+/* 퀴즈 */
+.qnum{color:var(--muted);font-size:.95rem}
+.qtext{font-size:1.25rem;margin:4px 0 10px}
+.opts{display:grid;gap:8px}
+.opt{text-align:left;border:1px solid var(--line);background:#fbfeff;border-radius:12px;padding:9px 13px;cursor:pointer;font-size:1.05rem}
+.opt.no{border-color:var(--alert);color:var(--alert);background:var(--soft-alert)}
+.opt.yes{border-color:var(--ok);color:var(--ok);background:var(--soft-ok)}
+.prog{display:flex;gap:5px;margin-bottom:8px}
+.prog i{flex:1;height:6px;border-radius:4px;background:#e1ecf0}
+.prog i.d{background:var(--ok)} .prog i.c{background:var(--head)}
+
+/* 결과 */
+#report{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;color:var(--ink)}
+.rep-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start;border-bottom:2px solid var(--line);padding-bottom:10px}
+.rep-head h2{margin:0;font-size:1.7rem;color:var(--ok)}
+.grade{display:flex;align-items:center;gap:14px;margin:14px 0}
+.grade .big{width:92px;height:92px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:3.4rem;color:#fff;flex:0 0 auto}
+.bars{display:grid;gap:8px;margin:10px 0}
+.bar{display:grid;grid-template-columns:150px 1fr 60px;gap:10px;align-items:center;font-size:.97rem}
+.bar .tr{height:12px;background:#eef4f6;border-radius:8px;overflow:hidden}
+.bar .tr i{display:block;height:100%;border-radius:8px}
+.bar .v{text-align:right;font-variant-numeric:tabular-nums}
+.fbk p{margin:6px 0}
+.fbk h4{margin:12px 0 2px;font-size:1.1rem;color:var(--head)}
+.answers{font-size:.95rem;color:var(--muted)}
+.answers li{margin:2px 0}
+.boost{margin-top:14px;border:2px solid var(--tail);border-radius:16px;padding:12px 14px;background:var(--soft-tail)}
+.boost h3{margin:0 0 6px;color:var(--tail)}
+.boost .item{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;border-top:1px dashed #e9c79b;padding:8px 0}
+.dl{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+#shot img{border:1px solid var(--line);border-radius:12px;margin-top:8px}
+
+@media (max-width:640px){
+  .brief-hero{grid-template-columns:1fr}
+  .mods{grid-template-columns:1fr 1fr}
+  .match{grid-template-columns:1fr}
+  .rinse{grid-template-columns:1fr}
+  .bar{grid-template-columns:100px 1fr 52px}
+  .title h1{font-size:1.55rem}
+  .brand{margin-left:0}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="title">
+      <h1>마이셀 특공대</h1>
+      <p>계면활성제의 <span class="hb">구조</span> · <span class="ht">세척 원리</span> · <span class="ha">유해성</span> 탐구 시뮬레이션 · 생활과 과학</p>
+    </div>
+    <div class="brand" aria-label="EARTH LJY">
+      <svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="20" cy="20" r="18" fill="#2b78d0"/>
+        <path d="M9 14c4-3 7 1 10-1s3-5 7-3 4 6 1 8-6 0-7 3 2 6-1 8-7 0-8-4-5-8-2-11z" fill="#23946a"/>
+        <ellipse cx="20" cy="20" rx="18" ry="7" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="1.2"/>
+        <circle cx="20" cy="20" r="18" fill="none" stroke="#16344c" stroke-width="1.5"/>
+      </svg>
+      <div>
+        <div class="name">EARTH <span>LJY</span></div>
+        <div class="mail">earthljy@ai.jne.kr</div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" id="tabs"></nav>
+
+  <!-- 0. 브리핑 -->
+  <section class="stage" id="sec-brief">
+    <div class="brief-hero">
+      <div>
+        <h2>작전 브리핑: 옷에 붙은 <span class="hs">기름때</span>를 없애라!</h2>
+        <p>물과 기름은 서로 섞이지 않아요. 그래서 물만으로는 기름때가 잘 지워지지 않지요. 이번 작전에서 여러분은 <span class="hb">물과도 친하고</span> <span class="ht">기름과도 친한</span> 특별한 분자, <span class="hv">계면활성제</span>를 직접 조립하고 배치해서 기름때를 씻어 내는 특공대원이 됩니다.</p>
+        <p>작전을 마치면 <span class="hk">미션 성공</span> 화면에서 수행 과정 평가(A~F)와 피드백을 받고, 결과를 이미지로 저장할 수 있어요.</p>
+      </div>
+      <svg viewBox="0 0 300 200" aria-hidden="true">
+        <rect x="0" y="0" width="300" height="200" rx="16" fill="#d7edf3"/>
+        <rect x="0" y="168" width="300" height="32" fill="#c9b99a"/>
+        <g id="heroMicelle"></g>
+        <text x="150" y="190" text-anchor="middle" font-size="13" fill="#5b4a2a">옷감 표면</text>
+      </svg>
+    </div>
+    <div class="mods">
+      <div class="mod"><b>모듈 1</b>구조 조립소<br><span class="hb">친수성기</span>와 <span class="ht">친유성기</span>, 표면 장력</div>
+      <div class="mod"><b>모듈 2</b>마이셀 만들기<br>기름때를 감싸는 <span class="hv">마이셀</span> 구조</div>
+      <div class="mod"><b>모듈 3</b>안전한 세정<br>천연·합성 계면활성제와 <span class="ha">잔류 유해성</span></div>
+      <div class="mod"><b>점검 퀴즈</b>쉬운 객관식 5문항<br>틀리면 피드백과 재도전</div>
+    </div>
+    <div class="field">
+      <label for="inClass">학번</label><input id="inClass" placeholder="예: 20315" maxlength="10">
+      <label for="inName">이름</label><input id="inName" placeholder="이름을 입력해요" maxlength="12">
+      <button class="btn" id="btnStart">작전 시작</button>
+    </div>
+    <div id="briefMsg"></div>
+  </section>
+
+  <!-- 1. 구조 조립소 -->
+  <section class="stage" id="sec-m1" hidden>
+    <h2>모듈 1 · 계면활성제 구조 조립소</h2>
+    <p class="lead">부품을 끌어다 알맞은 자리에 놓으세요. (휴대폰에서는 부품을 <span class="ht">톡</span> 누른 뒤 자리를 누르면 돼요.) 부품 중에는 계면활성제가 아닌 것도 섞여 있어요.</p>
+    <div class="tray" id="tray"></div>
+    <div class="bench">
+      <div class="slot" data-want="head" id="slotHead">물을 좋아하는 부분<br>(<span class="hb">친수성기</span>) 자리</div>
+      <div class="bond"></div>
+      <div class="slot" data-want="tail" id="slotTail" style="min-width:200px">기름을 좋아하는 부분<br>(<span class="ht">친유성기</span>) 자리</div>
+    </div>
+    <div id="m1Msg"></div>
+
+    <h3>표면 장력 실험실</h3>
+    <p class="lead" style="margin:0">먼저 <span class="hb">순수한 물</span>에 공기를 불어넣어 보고, 그다음 조립한 계면활성제를 넣어 비교해 보세요. 왼쪽은 물방울 모양, 오른쪽은 비커 속 거품이에요.</p>
+    <canvas id="tension" width="640" height="300" aria-label="물방울과 거품 실험 화면"></canvas>
+    <div class="ctrl">
+      <label for="surf">계면활성제 투입량</label>
+      <input type="range" id="surf" min="0" max="5" step="1" value="0" disabled>
+      <span class="readout" id="surfVal">0방울</span>
+      <button class="btn alt" id="btnBlow">공기 불어넣기</button>
+      <span class="readout">표면 장력 약 <span class="hb" id="gamma">72</span> mN/m · 남은 거품 <span class="ht" id="foamN">0</span>개</span>
+    </div>
+    <ul class="checks" id="m1Checks">
+      <li data-k="assembled">계면활성제 분자 모형 완성하기</li>
+      <li data-k="compared">순수한 물(투입량 0)에 공기를 불어넣어 거품이 어떻게 되는지 관찰하기</li>
+      <li data-k="foam">계면활성제를 3방울 이상 넣고 거품 12개 이상 유지하기</li>
+    </ul>
+    <div id="m1Done"></div>
+    <details class="note"><summary>모형과 실제는 달라요</summary>
+      실제 계면활성제 분자는 눈에 보이지 않을 만큼 매우 작고, 한 방울 속에도 셀 수 없이 많은 분자가 끊임없이 움직여요. 친수성기의 모양도 실제로는 공 모양이 아니라 원자들이 결합한 구조랍니다. 여기서는 이해를 돕기 위해 <span class="hb">파란 공</span>과 <span class="ht">주황 사슬</span>로 단순하게 나타냈어요.
+    </details>
+  </section>
+
+  <!-- 2. 마이셀 -->
+  <section class="stage" id="sec-m2" hidden>
+    <h2>모듈 2 · 마이셀 구조 만들기 <span class="round-tag" id="roundTag">1라운드</span></h2>
+    <p class="lead">옷감에 <span class="hs">기름때</span>가 붙어 있어요. 분자를 <span class="ht">톡</span> 누르면 방향이 뒤집혀요. <span class="ht">꼬리(친유성기)</span>는 기름때 쪽 <span class="ht">안쪽</span>으로, <span class="hb">머리(친수성기)</span>는 물 쪽 <span class="hb">바깥쪽</span>으로 향하게 만든 뒤 확인을 눌러요.</p>
+    <svg id="micelleSvg" viewBox="0 0 400 300" aria-label="마이셀 배치 화면"></svg>
+    <div class="ctrl" style="justify-content:center">
+      <button class="btn" id="btnCheckM">마이셀 완성 확인</button>
+      <button class="btn alt" id="btnHint">힌트 보기</button>
+    </div>
+    <div id="m2Msg"></div>
+    <div id="m2Done"></div>
+    <details class="note"><summary>모형과 실제는 달라요</summary>
+      실제 마이셀은 평면 원이 아니라 <span class="hv">공 모양의 입체 구조</span>이고, 수십~수백 개의 분자가 모여 만들어져요. 분자들은 누가 시켜서가 아니라, 꼬리가 물을 피하고 머리가 물과 어울리려는 성질 때문에 스스로 이렇게 배열돼요. 또 빨래할 때 비비거나 흔드는 힘이 기름때를 떼어 내는 데 도움을 줍니다.
+    </details>
+  </section>
+
+  <!-- 3. 안전 세정 -->
+  <section class="stage" id="sec-m3" hidden>
+    <h2>모듈 3 · 샴푸·세제 고르기와 안전한 세정</h2>
+    <h3>미션 A · 알맞은 계면활성제 고르기</h3>
+    <div class="tablebox">
+      <table class="cmp">
+        <tr><th>구분</th><th>예</th><th>특징</th></tr>
+        <tr><td><span class="hk">천연 계면활성제</span></td><td>우유·달걀노른자 속 레시틴, 비누풀·사포닌 등</td><td>자극이 적고 잘 분해되지만 세정력은 약한 편</td></tr>
+        <tr><td><span class="ha">합성 계면활성제</span></td><td>설페이트계(예: 라우릴황산나트륨) 등</td><td>세정력과 거품이 강하지만 피부 자극이 크고, 남으면 문제를 일으킬 수 있음</td></tr>
+      </table>
+    </div>
+    <p class="lead" style="margin-top:10px">각 물건에 더 알맞은 계면활성제를 골라 보세요.</p>
+    <div class="match" id="match"></div>
+    <div id="matchMsg"></div>
+
+    <h3>미션 B · 잔류 세제 경고등을 꺼라</h3>
+    <p class="lead">샴푸를 쓰고 대충 헹구면 <span class="ha">합성 계면활성제</span>가 두피에 남아요. 샴푸를 사용한 뒤 <span class="hb">헹구기</span> 버튼을 여러 번 눌러 잔류 게이지를 <span class="hk">0%</span>로 만드세요.</p>
+    <div class="rinse">
+      <div>
+        <svg class="scalp" viewBox="0 0 280 170" aria-hidden="true">
+          <path d="M20 150 Q140 10 260 150 Z" fill="#f2d6bf" stroke="#b78d6d"/>
+          <g id="hairs" stroke="#3c2a1d" stroke-width="2"></g>
+          <g id="suds"></g>
+          <g id="drops"></g>
+        </svg>
+        <p style="margin:6px 0 4px"><span class="lamp" id="lamp"></span>합성 계면활성제 잔류 <span class="ha readout" id="resVal">0%</span></p>
+        <div class="gauge"><i id="gauge"></i></div>
+        <div class="ctrl">
+          <button class="btn warn" id="btnShampoo" disabled>샴푸 사용하기</button>
+          <button class="btn" id="btnRinse" disabled>깨끗하게 헹구기</button>
+        </div>
+      </div>
+      <div>
+        <p style="margin:0 0 6px;color:var(--alert)">두피·피부 경고 대시보드</p>
+        <ul class="dash" id="dash"></ul>
+        <div id="rinseMsg"></div>
+      </div>
+    </div>
+    <div id="m3Done"></div>
+    <details class="note"><summary>모형과 실제는 달라요</summary>
+      버튼 몇 번으로 잔류량이 0이 되는 것은 단순화한 모형이에요. 실제로는 미지근한 물로 충분한 시간 동안 헹궈야 하고, 피부 상태와 제품 성분에 따라 영향도 사람마다 달라요. 또 헹궈 낸 합성 계면활성제는 하수를 거쳐 강으로 흘러가 <span class="ha">거품</span>을 만들고 수생 생물에 영향을 줄 수 있으므로 <span class="hk">적당한 양</span>만 쓰는 습관도 중요해요.
+    </details>
+  </section>
+
+  <!-- 4. 퀴즈 -->
+  <section class="stage" id="sec-quiz" hidden>
+    <h2>학습 점검 퀴즈</h2>
+    <p class="lead">처음 고른 답이 맞으면 점수에 반영돼요. 틀리면 피드백을 읽고 다시 골라 보세요.</p>
+    <div class="prog" id="prog"></div>
+    <div id="quizBox"></div>
+  </section>
+
+  <!-- 5. 결과 -->
+  <section class="stage" id="sec-result" hidden>
+    <div id="report"></div>
+    <div class="dl">
+      <button class="btn ok" id="btnShot">결과 이미지 다운로드</button>
+    </div>
+    <div id="shot"></div>
+    <div id="boost"></div>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const AREAS=[
+  {k:'m1',name:'모듈 1 구조·표면 장력'},
+  {k:'m2',name:'모듈 2 마이셀'},
+  {k:'m3',name:'모듈 3 안전한 세정'},
+  {k:'quiz',name:'점검 퀴즈'}];
+const S={name:'',cls:'',unlocked:0,redo:null,
+  m1:null,m2:null,m3:null,quiz:null,
+  best:{m1:-1,m2:-1,m3:-1,quiz:-1},bestD:{},done:{m1:false,m2:false,m3:false,quiz:false},log:[]};
+function log(t){S.log.push(t)}
+
+/* ---------- 탭 ---------- */
+const TABS=[['brief','작전 브리핑'],['m1','1 구조 조립소'],['m2','2 마이셀'],['m3','3 안전한 세정'],['quiz','점검 퀴즈'],['result','미션 성공']];
+let cur='brief';
+function renderTabs(){
+  $('#tabs').innerHTML=TABS.map(([id,l],i)=>{
+    const st=S.done[id]?'<span class="st">✓ </span>':'';
+    return `<button class="tab" role="tab" data-id="${id}" aria-selected="${id===cur}" ${i>S.unlocked?'disabled':''}>${st}${l}</button>`}).join('');
+  $('#tabs').querySelectorAll('.tab').forEach(b=>b.onclick=()=>go(b.dataset.id));
+}
+function go(id){
+  cur=id;
+  TABS.forEach(([t])=>$('#sec-'+t).hidden=(t!==id));
+  renderTabs();
+  if(id==='result')renderResult();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function unlock(i){S.unlocked=Math.max(S.unlocked,i);renderTabs()}
+
+/* ---------- 분자 그림 ---------- */
+function zig(x1,y1,x2,y2,n,amp){
+  const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy),ux=dx/L,uy=dy/L,px=-uy,py=ux;let p=[];
+  for(let i=0;i<=n;i++){const t=i/n,o=(i===0||i===n)?0:(i%2?amp:-amp);p.push((x1+dx*t+px*o).toFixed(1)+','+(y1+dy*t+py*o).toFixed(1))}
+  return p.join(' ');
+}
+const PARTS={
+  head:{label:'-COO⁻Na⁺',svg:`<svg width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="28" r="22" fill="#2b78d0"/><circle cx="21" cy="21" r="6" fill="#fff" opacity=".35"/><text x="28" y="33" text-anchor="middle" font-size="11" fill="#fff">COO⁻</text></svg>`},
+  tail:{label:'긴 탄화수소 사슬',svg:`<svg width="120" height="40" viewBox="0 0 120 40"><polyline points="${zig(6,20,114,20,10,9)}" fill="none" stroke="#d9821f" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/></svg>`},
+  water:{label:'물 분자 H₂O',svg:`<svg width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="30" r="14" fill="#e2564d"/><circle cx="13" cy="18" r="8" fill="#e6ecef" stroke="#9fb3bf"/><circle cx="43" cy="18" r="8" fill="#e6ecef" stroke="#9fb3bf"/><text x="28" y="34" text-anchor="middle" font-size="11" fill="#fff">O</text></svg>`},
+  oil:{label:'기름방울',svg:`<svg width="56" height="56" viewBox="0 0 56 56"><path d="M28 6 C40 22 46 30 46 37 A18 18 0 0 1 10 37 C10 30 16 22 28 6Z" fill="#c9a23d"/><ellipse cx="22" cy="34" rx="4" ry="7" fill="#fff" opacity=".35"/></svg>`}
+};
+
+/* ---------- 브리핑 히어로 ---------- */
+(function(){
+  let g='';const cx=150,cy=96,r=34,n=12;
+  g+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="#a98642"/>`;
+  for(let i=0;i<n;i++){const a=i/n*Math.PI*2,c=Math.cos(a),s=Math.sin(a);
+    g+=`<polyline points="${zig(cx+c*(r-2),cy+s*(r-2),cx+c*(r+26),cy+s*(r+26),6,3.5)}" fill="none" stroke="#d9821f" stroke-width="3" stroke-linejoin="round"/>`;
+    g+=`<circle cx="${cx+c*(r+33)}" cy="${cy+s*(r+33)}" r="7" fill="#2b78d0"/>`}
+  $('#heroMicelle').innerHTML=g;
+})();
+
+$('#btnStart').onclick=()=>{
+  const n=$('#inName').value.trim(),c=$('#inClass').value.trim();
+  if(!n){$('#briefMsg').innerHTML='<div class="msg bad">이름을 입력해야 결과지에 기록할 수 있어요.</div>';return}
+  S.name=n;S.cls=c;log('작전 시작');unlock(1);go('m1');
+};
+
+/* ===================== 모듈 1 ===================== */
+let selPart=null,surf=0,bubbles=[],foam=[],pops=[],theta=140*Math.PI/180;
+function resetM1(){
+  S.m1={wrong:0,assembled:false,compared:false,foam:false};
+  const order=['oil','tail','water','head'];
+  $('#tray').innerHTML=order.map(k=>`<div class="part" tabindex="0" data-part="${k}">${PARTS[k].svg}<span>${PARTS[k].label}</span></div>`).join('');
+  ['slotHead','slotTail'].forEach(id=>{const s=$('#'+id);s.classList.remove('filled');
+    s.innerHTML=id==='slotHead'?'물을 좋아하는 부분<br>(<span class="hb">친수성기</span>) 자리':'기름을 좋아하는 부분<br>(<span class="ht">친유성기</span>) 자리'});
+  $('#m1Msg').innerHTML='';$('#m1Done').innerHTML='';
+  surf=0;$('#surf').value=0;$('#surf').disabled=true;bubbles=[];foam=[];pops=[];
+  updSurf();bindParts();updM1Checks();
+}
+function bindParts(){
+  document.querySelectorAll('#tray .part').forEach(p=>{
+    let sx,sy,drag=false,ghost=null;
+    p.addEventListener('pointerdown',e=>{sx=e.clientX;sy=e.clientY;drag=false;p.setPointerCapture(e.pointerId)});
+    p.addEventListener('pointermove',e=>{
+      if(sx===undefined)return;
+      if(!drag&&Math.hypot(e.clientX-sx,e.clientY-sy)>6){drag=true;ghost=p.cloneNode(true);ghost.classList.add('ghost');document.body.appendChild(ghost)}
+      if(drag){ghost.style.left=e.clientX+'px';ghost.style.top=e.clientY+'px';
+        document.querySelectorAll('.slot').forEach(s=>s.classList.remove('hover'));
+        ghost.style.display='none';const el=document.elementFromPoint(e.clientX,e.clientY);ghost.style.display='';
+        const sl=el&&el.closest('.slot');if(sl)sl.classList.add('hover')}
+    });
+    p.addEventListener('pointerup',e=>{
+      if(drag){ghost.remove();document.querySelectorAll('.slot').forEach(s=>s.classList.remove('hover'));
+        const el=document.elementFromPoint(e.clientX,e.clientY),sl=el&&el.closest('.slot');
+        if(sl)tryPlace(p,sl)}
+      else selectPart(p);
+      sx=undefined;drag=false;
+    });
+    p.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectPart(p)}});
+  });
+}
+function selectPart(p){
+  document.querySelectorAll('#tray .part').forEach(x=>x.classList.remove('sel'));
+  if(selPart===p){selPart=null;return}
+  selPart=p;p.classList.add('sel');
+  $('#m1Msg').innerHTML='<div class="msg info">이제 놓을 자리를 눌러요.</div>';
+}
+document.querySelectorAll('.slot').forEach(s=>s.addEventListener('click',()=>{if(selPart)tryPlace(selPart,s)}));
+function tryPlace(p,slot){
+  if(slot.classList.contains('filled'))return;
+  const k=p.dataset.part,want=slot.dataset.want;selPart=null;p.classList.remove('sel');
+  if(k===want){
+    slot.classList.add('filled');slot.innerHTML=PARTS[k].svg;p.remove();
+    $('#m1Msg').innerHTML=`<div class="msg ok">${k==='head'?'맞아요! 전하를 띤 <span class="hb">-COO⁻Na⁺</span> 부분은 물 분자와 잘 어울리는 <span class="hb">친수성기</span>예요.':'맞아요! 길게 이어진 탄화수소 사슬은 기름과 잘 어울리는 <span class="ht">친유성기</span>예요.'}</div>`;
+    if($('#slotHead').classList.contains('filled')&&$('#slotTail').classList.contains('filled')){
+      S.m1.assembled=true;log(`분자 조립 완료(잘못 놓기 ${S.m1.wrong}회)`);
+      $('#surf').disabled=false;
+      $('#m1Msg').innerHTML='<div class="msg ok">계면활성제 분자 모형 완성! 한쪽은 <span class="hb">물</span>과, 다른 쪽은 <span class="ht">기름</span>과 친한 두 얼굴의 분자예요. 이제 아래 실험실에서 투입량을 조절할 수 있어요.</div>';
+    }
+  }else{
+    S.m1.wrong++;
+    const fb={water:'물 분자는 계면활성제의 부품이 아니에요. 계면활성제는 물과 기름 <span class="hv">사이(경계면)</span>에서 작용하는 하나의 분자랍니다.',
+      oil:'기름방울은 씻어 내야 할 대상이지 분자의 부품이 아니에요.',
+      head:'이 부분은 전하를 띠어 <span class="hb">물</span>과 잘 어울려요. 기름을 좋아하는 자리에는 길쭉한 탄화수소 사슬이 와야 해요.',
+      tail:'탄화수소 사슬은 물을 싫어하고 <span class="ht">기름</span>과 친해요. 물을 좋아하는 자리에는 파란 머리가 와야 해요.'}[k];
+    $('#m1Msg').innerHTML=`<div class="msg bad">다시 생각해 봐요. ${fb}</div>`;
+  }
+  updM1Checks();
+}
+function updSurf(){
+  $('#surfVal').textContent=surf+'방울';
+  $('#gamma').textContent=Math.round(72-8.4*surf);
+}
+$('#surf').addEventListener('input',e=>{surf=+e.target.value;updSurf()});
+$('#btnBlow').onclick=()=>{
+  for(let i=0;i<6;i++)bubbles.push({x:465+Math.random()*110,y:270+Math.random()*20,r:5+Math.random()*6,v:0.9+Math.random()*0.8,w:Math.random()*6});
+  $('#btnBlow').classList.remove('shake');void $('#btnBlow').offsetWidth;$('#btnBlow').classList.add('shake');
+};
+const cv=$('#tension'),cx=cv.getContext('2d');
+function sizeCanvas(){const d=Math.min(2,window.devicePixelRatio||1);cv.width=640*d;cv.height=300*d;cx.setTransform(d,0,0,d,0,0)}
+sizeCanvas();
+const WATER_TOP=150;
+function drawTension(){
+  cx.clearRect(0,0,640,300);
+  // 왼쪽 물방울
+  cx.fillStyle='#5b7486';cx.font='15px '+getComputedStyle(document.body).fontFamily;
+  cx.fillText('물방울 모양',20,26);
+  const target=(140-23*surf)*Math.PI/180;theta+=(target-theta)*0.06;
+  const surfY=220,A=5200,R=Math.sqrt(A/(theta-Math.sin(theta)*Math.cos(theta)));
+  const ccx=160,ccy=surfY+R*Math.cos(theta);
+  cx.fillStyle='#bfe0c4';cx.fillRect(20,surfY,280,14);cx.fillStyle='#8cbf93';cx.fillRect(20,surfY+14,280,6);
+  cx.save();cx.beginPath();cx.rect(0,0,320,surfY);cx.clip();
+  cx.beginPath();cx.arc(ccx,ccy,R,0,Math.PI*2);
+  const gr=cx.createLinearGradient(0,ccy-R,0,surfY);gr.addColorStop(0,'#bfe3f5');gr.addColorStop(1,'#6fb6e0');
+  cx.fillStyle=gr;cx.fill();cx.strokeStyle='#2b78d0';cx.lineWidth=2;cx.stroke();
+  // 표면의 계면활성제 표시
+  if(surf>0){const m=surf*5;for(let i=0;i<m;i++){const a=-Math.PI/2+(i/(m-1||1)-0.5)*2*(theta*0.95);
+    const hx=ccx+R*Math.sin(a+Math.PI/2)*0+R*Math.cos(a),hy=ccy+R*Math.sin(a);
+    if(hy<surfY-2){cx.beginPath();cx.arc(hx,hy,3,0,Math.PI*2);cx.fillStyle='#2b78d0';cx.fill();
+      cx.beginPath();cx.moveTo(hx,hy);cx.lineTo(hx+Math.cos(a)*9,hy+Math.sin(a)*9);cx.strokeStyle='#d9821f';cx.lineWidth=2;cx.stroke()}}}
+  cx.restore();
+  cx.fillStyle='#16344c';cx.fillText(surf===0?'순수한 물: 동그랗게 뭉침':'계면활성제: 넓게 퍼짐',20,surfY+44);
+  cx.fillStyle='#5b7486';cx.fillText('접촉각 약 '+Math.round(theta*180/Math.PI)+'°',20,surfY+66);
+  // 오른쪽 비커
+  cx.fillStyle='#5b7486';cx.fillText('비커 속 거품',350,26);
+  cx.fillStyle='#d6ecf6';cx.fillRect(452,WATER_TOP,136,140);
+  cx.strokeStyle='#5b7486';cx.lineWidth=3;cx.beginPath();cx.moveTo(450,60);cx.lineTo(450,292);cx.lineTo(590,292);cx.lineTo(590,60);cx.stroke();
+  cx.strokeStyle='#2b78d0';cx.lineWidth=1.5;cx.beginPath();cx.moveTo(452,WATER_TOP);cx.lineTo(588,WATER_TOP);cx.stroke();
+  // 공기 방울
+  for(let i=bubbles.length-1;i>=0;i--){const b=bubbles[i];b.y-=b.v;b.w+=0.1;const x=b.x+Math.sin(b.w)*2;
+    cx.beginPath();cx.arc(x,b.y,b.r,0,Math.PI*2);cx.strokeStyle='#2b78d0';cx.lineWidth=1.5;cx.stroke();
+    if(b.y<=WATER_TOP){bubbles.splice(i,1);
+      if(surf===0){pops.push({x,y:WATER_TOP,t:0});if(!S.m1.compared){S.m1.compared=true;log('순수한 물 거품 관찰');updM1Checks()}}
+      else foam.push({x:Math.min(582,Math.max(458,x)),y:WATER_TOP-b.r-Math.random()*Math.min(70,foam.length*2.2),r:b.r*1.2,life:surf>=3?1e9:240+surf*160});
+    }}
+  for(let i=pops.length-1;i>=0;i--){const p=pops[i];p.t++;cx.beginPath();cx.arc(p.x,p.y,4+p.t*0.8,0,Math.PI*2);cx.strokeStyle=`rgba(216,72,63,${1-p.t/20})`;cx.stroke();
+    if(p.t<14){cx.fillStyle='#d8483f';cx.fillText('펑',p.x-7,p.y-10)}if(p.t>20)pops.splice(i,1)}
+  for(let i=foam.length-1;i>=0;i--){const f=foam[i];f.life--;if(f.life<=0||(surf===0)){pops.push({x:f.x,y:f.y,t:0});foam.splice(i,1);continue}
+    cx.beginPath();cx.arc(f.x,f.y,f.r,0,Math.PI*2);cx.fillStyle='rgba(255,255,255,.75)';cx.fill();cx.strokeStyle='#7fb0d6';cx.lineWidth=1;cx.stroke()}
+  if(foam.length>40)foam.splice(0,foam.length-40);
+  $('#foamN').textContent=foam.length;
+  if(S.m1&&S.m1.assembled&&!S.m1.foam&&surf>=3&&foam.length>=12){S.m1.foam=true;log('계면활성제 거품 유지 확인');updM1Checks()}
+  requestAnimationFrame(drawTension);
+}
+function updM1Checks(){
+  document.querySelectorAll('#m1Checks li').forEach(li=>li.classList.toggle('on',!!S.m1[li.dataset.k]));
+  if(S.m1.assembled&&S.m1.foam&&!$('#m1Done').innerHTML){
+    const skip=!S.m1.compared?'<br>순수한 물 비교 관찰을 아직 하지 않았어요. 투입량을 0으로 내리고 공기를 불어넣어 보면 평가에 도움이 돼요.':'';
+    $('#m1Done').innerHTML=`<div class="msg ok">모듈 1 완료! 계면활성제가 물의 <span class="hb">표면 장력을 낮추어</span> 물방울이 넓게 퍼지고 거품이 쉽게 유지된다는 것을 확인했어요.${skip}</div><button class="btn ok" id="m1Next">${S.redo?'결과로 돌아가기':'모듈 2로 이동'}</button>`;
+    $('#m1Next').onclick=()=>finishArea('m1',2,'m2');
+  }
+}
+
+/* ===================== 모듈 2 ===================== */
+let mols=[],round=0,showWrong=false,animating=false;
+const RCFG=[{n:8,r:38},{n:12,r:48}];
+function resetM2(){S.m2={fails:[0,0],hints:0,rounds:0};round=0;$('#m2Done').innerHTML='';buildRound()}
+function buildRound(){
+  const c=RCFG[round];mols=[];
+  for(let i=0;i<c.n;i++)mols.push(Math.random()<0.5?'in':'out');
+  if(mols.filter(o=>o==='out').length<3)for(let i=0;i<3;i++)mols[i*2]='out';
+  showWrong=false;animating=false;
+  $('#roundTag').textContent=(round+1)+'라운드 / 2';
+  $('#m2Msg').innerHTML='';$('#btnCheckM').disabled=false;$('#btnHint').disabled=false;
+  drawM2();
+}
+function drawM2(fly){
+  const c=RCFG[round],cxm=200,cym=150,r=c.r;
+  let s=`<rect width="400" height="300" fill="#d7edf3"/>`;
+  for(let i=0;i<14;i++)s+=`<text x="${(i*67)%390+8}" y="${(i*41)%180+22}" font-size="11" fill="#7fb0d6">H₂O</text>`;
+  s+=`<rect x="0" y="262" width="400" height="38" fill="#c9b99a"/>`;
+  for(let x=0;x<400;x+=12)s+=`<line x1="${x}" y1="262" x2="${x+6}" y2="300" stroke="#b5a37f"/>`;
+  s+=`<text x="10" y="290" font-size="13" fill="#5b4a2a">옷감 표면</text>`;
+  s+=`<g id="mg" style="transition:transform 1.8s ease-in,opacity 1.8s ease-in;transform-origin:200px 150px">`;
+  s+=`<path d="M${cxm-18} ${cym+r-4} Q${cxm} ${262} ${cxm+22} ${cym+r-4} L${cxm+30} 262 L${cxm-28} 262Z" fill="#8b6b2e" opacity=".75"/>`;
+  s+=`<circle cx="${cxm}" cy="${cym}" r="${r}" fill="#9c7a35"/><ellipse cx="${cxm-r*0.35}" cy="${cym-r*0.35}" rx="${r*0.25}" ry="${r*0.15}" fill="#fff" opacity=".25"/>`;
+  s+=`<text x="${cxm}" y="${cym+5}" text-anchor="middle" font-size="14" fill="#fff">기름때</text>`;
+  mols.forEach((o,i)=>{
+    const a=i/mols.length*Math.PI*2-Math.PI/2,cc=Math.cos(a),ss=Math.sin(a);
+    let t1,t2,h;if(o==='in'){t1=r+3;t2=r+33;h=r+41}else{h=r+8;t1=r+16;t2=r+46}
+    const wrong=showWrong&&o==='out';
+    s+=`<g class="mol" data-i="${i}" role="button" aria-label="분자 ${i+1} 방향 바꾸기">`;
+    s+=`<circle cx="${cxm+cc*(r+26)}" cy="${cym+ss*(r+26)}" r="24" fill="transparent"/>`;
+    s+=`<polyline points="${zig(cxm+cc*t1,cym+ss*t1,cxm+cc*t2,cym+ss*t2,6,4)}" fill="none" stroke="#d9821f" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>`;
+    s+=`<circle cx="${cxm+cc*h}" cy="${cym+ss*h}" r="7.5" fill="#2b78d0" ${wrong?'stroke="#d8483f" stroke-width="3"':''}/>`;
+    if(wrong)s+=`<circle cx="${cxm+cc*(r+26)}" cy="${cym+ss*(r+26)}" r="22" fill="none" stroke="#d8483f" stroke-dasharray="4 3"/>`;
+    s+=`</g>`;
+  });
+  s+=`</g>`;
+  $('#micelleSvg').innerHTML=s;
+  $('#micelleSvg').querySelectorAll('.mol').forEach(g=>g.addEventListener('click',()=>{
+    if(animating)return;const i=+g.dataset.i;mols[i]=mols[i]==='in'?'out':'in';drawM2()}));
+}
+$('#btnHint').onclick=()=>{
+  if(animating)return;S.m2.hints++;showWrong=true;drawM2();
+  $('#m2Msg').innerHTML='<div class="msg info">빨간 점선으로 표시된 분자는 <span class="hb">머리</span>가 기름때 쪽을 향하고 있어요. 머리는 물이 있는 바깥쪽이 편해요.</div>';
+  setTimeout(()=>{showWrong=false;if(!animating)drawM2()},1800);
+};
+$('#btnCheckM').onclick=()=>{
+  if(animating)return;
+  const bad=mols.filter(o=>o==='out').length;
+  if(bad>0){S.m2.fails[round]++;showWrong=true;drawM2();
+    $('#m2Msg').innerHTML=`<div class="msg bad">아직 ${bad}개의 분자가 거꾸로예요. <span class="ht">친유성 꼬리</span>는 물을 싫어해서 기름때 속으로 파고들고, <span class="hb">친수성 머리</span>는 물 쪽으로 나와야 기름때가 물에 둘러싸여 떨어져 나갈 수 있어요.</div>`;
+    setTimeout(()=>{showWrong=false;if(!animating)drawM2()},2200);return}
+  animating=true;$('#btnCheckM').disabled=true;$('#btnHint').disabled=true;
+  $('#m2Msg').innerHTML='<div class="msg ok">마이셀 완성! 바깥이 <span class="hb">친수성 머리</span>로 둘러싸여 기름때가 물속으로 분산되며 옷감에서 떨어져 나가요.</div>';
+  const g=$('#mg');requestAnimationFrame(()=>{g.style.transform='translate(130px,-190px) scale(.45)';g.style.opacity='0.15'});
+  S.m2.rounds=round+1;log(`마이셀 ${round+1}라운드 완성(오답 확인 ${S.m2.fails[round]}회)`);
+  setTimeout(()=>{
+    if(round===0){round=1;buildRound();$('#m2Msg').innerHTML='<div class="msg info">더 큰 기름때가 나타났어요! 분자 수도 늘었어요.</div>'}
+    else{$('#m2Done').innerHTML=`<div class="msg ok">모듈 2 완료! 옷감이 깨끗해졌어요. 계면활성제의 <span class="ht">친유성기는 기름때 쪽</span>, <span class="hb">친수성기는 물 쪽</span>으로 배열되어 <span class="hv">마이셀</span>을 만든다는 것이 세척의 핵심이에요.</div><button class="btn ok" id="m2Next">${S.redo?'결과로 돌아가기':'모듈 3으로 이동'}</button>`;
+      $('#m2Next').onclick=()=>finishArea('m2',3,'m3')}
+  },2000);
+};
+
+/* ===================== 모듈 3 ===================== */
+const ITEMS=[
+  {id:'baby',t:'아기용 샴푸',d:'피부가 얇고 민감한 아기가 쓰는 제품',a:'nat',fb:'아기 피부는 얇고 약해서 자극이 적은 <span class="hk">천연 계면활성제</span>가 알맞아요.'},
+  {id:'sens',t:'민감성 피부 세안제',d:'쉽게 붉어지고 건조해지는 피부용',a:'nat',fb:'민감한 피부의 지방막을 지키려면 자극이 적은 <span class="hk">천연 계면활성제</span>가 좋아요.'},
+  {id:'hood',t:'주방 후드 기름때 세정제',d:'오래 찌든 끈적한 기름때 제거용',a:'syn',fb:'찌든 기름때에는 세정력이 강한 <span class="ha">합성 계면활성제</span>가 효과적이에요. 대신 장갑을 끼고 사용해요.'},
+  {id:'work',t:'흙·기름 묻은 작업복 세탁',d:'정비소·공사장 작업복 세탁용',a:'syn',fb:'심한 오염에는 강력한 세정력이 필요하므로 <span class="ha">합성 계면활성제</span>가 알맞아요.'}];
+const SYMPT=[
+  {th:0,t:'두피 가려움·비듬'},
+  {th:20,t:'피부 지방막이 녹아 건조해짐'},
+  {th:40,t:'피부 단백질 변성'},
+  {th:60,t:'두피 각질층 침투, 세포 손상'},
+  {th:80,t:'탈모 속도 가속 위험'}];
+let residue=0,rinseStart=0;
+function resetM3(){
+  S.m3={first:{},tries:{},choice:{},solved:{},rinsed:false,taps:0,sec:0};
+  $('#match').innerHTML=ITEMS.map(it=>`<div class="card" id="c-${it.id}"><div class="t">${it.t}</div><div class="d">${it.d}</div>
+    <div class="ch"><button data-id="${it.id}" data-v="nat">천연 계면활성제</button><button data-id="${it.id}" data-v="syn">합성 계면활성제</button></div><div class="fb"></div></div>`).join('');
+  $('#match').querySelectorAll('button').forEach(b=>b.onclick=()=>pick(b.dataset.id,b.dataset.v));
+  $('#matchMsg').innerHTML='';$('#m3Done').innerHTML='';$('#rinseMsg').innerHTML='';
+  residue=0;$('#btnShampoo').disabled=true;$('#btnRinse').disabled=true;
+  let h='';for(let i=0;i<26;i++){const x=34+i*8.6,y=150-Math.sin((x-20)/240*Math.PI)*132;h+=`<line x1="${x}" y1="${y+6}" x2="${x+(i%2?3:-3)}" y2="${y-14}"/>`}
+  $('#hairs').innerHTML=h;updRes();
+}
+function pick(id,v){
+  const it=ITEMS.find(x=>x.id===id);if(S.m3.solved[id])return;
+  S.m3.tries[id]=(S.m3.tries[id]||0)+1;S.m3.choice[id]=v;
+  const card=$('#c-'+id),fb=card.querySelector('.fb');
+  if(S.m3.first[id]===undefined)S.m3.first[id]=(v===it.a);
+  if(v===it.a){S.m3.solved[id]=true;card.classList.add('right');fb.innerHTML=`<span class="hk">정답!</span> ${it.fb}`;card.querySelectorAll('button').forEach(b=>b.disabled=true)}
+  else fb.innerHTML=`<span class="ha">다시 생각해 봐요.</span> ${v==='syn'?'합성 계면활성제는 세정력이 강한 만큼 피부 자극도 커요. 이 물건을 쓰는 사람의 피부를 떠올려 보세요.':'천연 계면활성제는 순하지만 세정력이 약해요. 이렇게 심한 오염도 잘 지워질까요?'}`;
+  if(ITEMS.every(x=>S.m3.solved[x.id])){
+    const wrong=ITEMS.filter(x=>!S.m3.first[x.id]).length;log(`성분 매칭 완료(처음에 틀린 물건 ${wrong}개)`);
+    $('#matchMsg').innerHTML='<div class="msg ok">미션 A 완료! 이제 미션 B에서 <span class="ha">샴푸 사용하기</span>를 눌러 보세요.</div>';
+    $('#btnShampoo').disabled=false;
+  }
+}
+function updRes(){
+  $('#resVal').textContent=Math.round(residue)+'%';$('#gauge').style.width=residue+'%';
+  $('#lamp').classList.toggle('on',residue>0);
+  $('#dash').innerHTML=SYMPT.map(s=>{const on=residue>s.th;return `<li class="${on?'on':''}"><span class="lamp ${on?'on':''}"></span>${s.t}</li>`}).join('');
+  let su='';const n=Math.ceil(residue/6);for(let i=0;i<n;i++){const x=40+((i*53)%200),y=60+((i*37)%70);su+=`<circle cx="${x}" cy="${y}" r="${7+(i%3)*3}" fill="#fff" stroke="#9fc4e0" opacity=".9"/>`}
+  $('#suds').innerHTML=su;
+}
+$('#btnShampoo').onclick=()=>{
+  $('#btnShampoo').disabled=true;residue=0;
+  const t=setInterval(()=>{residue=Math.min(100,residue+10);updRes();if(residue>=100){clearInterval(t);$('#btnRinse').disabled=false;rinseStart=Date.now();
+    $('#rinseMsg').innerHTML='<div class="msg bad">경고! 헹구지 않은 합성 계면활성제가 두피에 그대로 남아 있어요. 대시보드의 경고등을 모두 꺼 보세요.</div>'}},60);
+};
+$('#btnRinse').onclick=()=>{
+  if(residue<=0)return;S.m3.taps++;residue=Math.max(0,residue-5);updRes();
+  const d=document.createElementNS('http://www.w3.org/2000/svg','circle');const x=40+Math.random()*200;
+  d.setAttribute('cx',x);d.setAttribute('cy',10);d.setAttribute('r',4);d.setAttribute('fill','#2b78d0');$('#drops').appendChild(d);
+  let y=10;const f=()=>{y+=8;d.setAttribute('cy',y);if(y<150)requestAnimationFrame(f);else d.remove()};f();
+  $('#gauge').parentNode.classList.remove('shake');void $('#gauge').offsetWidth;$('#gauge').parentNode.classList.add('shake');
+  if(residue===0){S.m3.rinsed=true;S.m3.sec=Math.round((Date.now()-rinseStart)/1000);$('#btnRinse').disabled=true;
+    log(`잔류 세제 0% 달성(헹굼 ${S.m3.taps}회)`);
+    $('#rinseMsg').innerHTML='<div class="msg ok">경고등이 모두 꺼졌어요! 계면활성제는 사용한 뒤 <span class="hk">남지 않도록 충분히 헹구는 것</span>이 가장 중요해요.</div>';
+    $('#m3Done').innerHTML=`<div class="msg ok">모듈 3 완료!</div><button class="btn ok" id="m3Next">${S.redo?'결과로 돌아가기':'점검 퀴즈로 이동'}</button>`;
+    $('#m3Next').onclick=()=>finishArea('m3',4,'quiz');
+  }
+};
+
+/* ===================== 퀴즈 ===================== */
+const Q=[
+  {q:'계면활성제 분자에서 물과 친한 부분의 이름은?',o:['친수성기','친유성기','기름때','공기 방울'],a:0,
+   fb:'"친수(親水)"는 물과 친하다는 뜻이에요. 모듈 1에서 파란 머리(-COO⁻Na⁺)를 놓았던 자리를 떠올려 보세요.',topic:'친수성기의 뜻'},
+  {q:'물에 계면활성제를 넣으면 물의 표면 장력은 어떻게 될까요?',o:['커진다','작아진다','변하지 않는다','물이 모두 사라진다'],a:1,
+   fb:'표면 장력 실험실에서 투입량을 늘릴수록 수치가 72에서 30 정도로 내려가고 물방울이 넓게 퍼졌어요. 표면 장력이 작아진 것이에요.',topic:'표면 장력 변화'},
+  {q:'계면활성제가 기름때를 둥글게 둘러싼 구조를 무엇이라고 할까요?',o:['결정','마이셀','세포','원자핵'],a:1,
+   fb:'모듈 2에서 분자들이 기름때를 동그랗게 감싼 구조를 마이셀이라고 불렀어요.',topic:'마이셀의 뜻'},
+  {q:'마이셀에서 친유성 꼬리는 어느 쪽을 향할까요?',o:['바깥쪽 물','안쪽 기름때','옷감 아래쪽','아무 방향이나'],a:1,
+   fb:'꼬리는 기름과 친하고 물을 싫어해요. 그래서 안쪽 기름때 속으로 파고들고, 머리가 바깥의 물 쪽을 향해요.',topic:'마이셀 속 분자 배열'},
+  {q:'계면활성제가 든 샴푸를 안전하게 사용하는 방법은?',o:['많이 쓸수록 좋다','거품을 오래 남겨 둔다','사용 후 깨끗하게 헹군다','아기에게 강한 합성 세제를 쓴다'],a:2,
+   fb:'모듈 3에서 잔류 게이지가 남아 있을 때 가려움, 건조, 단백질 변성 같은 경고등이 켜졌어요. 사용 후에는 남지 않도록 충분히 헹궈야 해요.',topic:'안전한 사용법'}];
+let qList=[],qi=0,qTried=false;
+function resetQuiz(only){
+  if(!only)S.quiz={first:Array(Q.length).fill(null),chosen:Array(Q.length).fill(null)};
+  qList=only||Q.map((_,i)=>i);qi=0;renderQ();
+}
+function renderQ(){
+  $('#prog').innerHTML=qList.map((_,k)=>`<i class="${k<qi?'d':k===qi?'c':''}"></i>`).join('');
+  if(qi>=qList.length){
+    const c=S.quiz.first.filter(x=>x).length;log(`퀴즈 완료(처음에 맞힌 문항 ${c}/5)`);
+    $('#quizBox').innerHTML=`<div class="msg ok">퀴즈 완료! 처음 고른 답으로 <span class="hk">${c}문항</span>을 맞혔어요.</div><button class="btn ok" id="qNext">미션 성공 화면 보기</button>`;
+    $('#qNext').onclick=()=>finishArea('quiz',5,'result');return}
+  const i=qList[qi],x=Q[i];qTried=false;
+  $('#quizBox').innerHTML=`<div class="qnum">문항 ${qi+1} / ${qList.length}</div><div class="qtext">${x.q}</div>
+    <div class="opts">${x.o.map((o,j)=>`<button class="opt" data-j="${j}">${'①②③④'[j]} ${o}</button>`).join('')}</div><div id="qfb"></div>`;
+  $('#quizBox').querySelectorAll('.opt').forEach(b=>b.onclick=()=>answer(i,+b.dataset.j,b));
+}
+function answer(i,j,b){
+  const x=Q[i];
+  if(!qTried){qTried=true;if(S.redo!=='quiz'||S.quiz.first[i]!==true)S.quiz.first[i]=(j===x.a);S.quiz.chosen[i]=j}
+  if(j===x.a){b.classList.add('yes');$('#quizBox').querySelectorAll('.opt').forEach(o=>o.disabled=true);
+    $('#qfb').innerHTML=`<div class="msg ok">정답이에요!</div><button class="btn" id="qGo">다음</button>`;
+    $('#qGo').onclick=()=>{qi++;renderQ()}}
+  else{b.classList.add('no');b.disabled=true;$('#qfb').innerHTML=`<div class="msg bad">아쉬워요. ${x.fb} 다시 골라 보세요.</div>`}
+}
+
+/* ===================== 점수·완료 ===================== */
+function score(k,d){
+  d=d||S[k];
+  if(k==='m1')return (d.assembled?Math.max(3,12-3*d.wrong):0)+(d.compared?5:0)+(d.foam?8:0);
+  if(k==='m2'){let s=(d.rounds>=1?Math.max(4,13-3*d.fails[0]):0)+(d.rounds>=2?Math.max(4,12-3*d.fails[1]):0);return Math.max(0,s-Math.min(4,d.hints))}
+  if(k==='m3')return ITEMS.filter(x=>d.first[x.id]).length*3+(d.rinsed?13:0);
+  if(k==='quiz')return d.first.filter(x=>x).length*5;
+}
+function finishArea(k,nextIdx,nextTab){
+  const sc=score(k);
+  if(sc>=S.best[k]){S.best[k]=sc;S.bestD[k]=JSON.parse(JSON.stringify(S[k]))}
+  if(k==='quiz'){S.bestD.quiz=JSON.parse(JSON.stringify(S.quiz));S.best.quiz=score('quiz')}
+  S.done[k]=true;
+  if(S.redo){log(`보충 활동 완료: ${AREAS.find(a=>a.k===k).name} (${sc}점)`);S.redo=null;go('result');return}
+  unlock(nextIdx);go(nextTab);
+}
+function startRedo(k){
+  S.redo=k;log(`보충 활동 시작: ${AREAS.find(a=>a.k===k).name}`);
+  if(k==='m1')resetM1();if(k==='m2')resetM2();if(k==='m3')resetM3();
+  if(k==='quiz'){const miss=S.quiz.first.map((v,i)=>v?null:i).filter(v=>v!==null);resetQuiz(miss)}
+  $('#shot').innerHTML='';go(k);
+}
+function gradeOf(t){return t>=90?'A':t>=80?'B':t>=70?'C':t>=60?'D':'F'}
+const GCOL={A:'#23946a',B:'#2b78d0',C:'#7a4fc4',D:'#d9821f',F:'#d8483f'};
+function gaps(){
+  const out=[],D=S.bestD;
+  if(D.m1){const r=[];if(D.m1.wrong>0)r.push(`분자 조립에서 부품을 ${D.m1.wrong}번 잘못 놓았어요. 실수 없이 다시 조립해 보세요.`);
+    if(!D.m1.compared)r.push('순수한 물에 공기를 불어넣는 비교 관찰을 빠뜨렸어요.');
+    if(r.length)out.push({k:'m1',gain:25-S.best.m1,r})}
+  if(D.m2){const r=[];const f=D.m2.fails[0]+D.m2.fails[1];if(f>0)r.push(`마이셀 확인에서 ${f}번 틀렸어요. 확인 전에 모든 꼬리가 안쪽을 향하는지 스스로 점검해 보세요.`);
+    if(D.m2.hints>0)r.push(`힌트를 ${D.m2.hints}번 사용했어요. 이번엔 힌트 없이 도전해 보세요.`);
+    if(r.length)out.push({k:'m2',gain:25-S.best.m2,r})}
+  if(D.m3){const w=ITEMS.filter(x=>!D.m3.first[x.id]).map(x=>x.t);if(w.length)out.push({k:'m3',gain:25-S.best.m3,r:[`처음 선택이 틀린 물건: ${w.join(', ')}. 사용하는 사람과 오염 정도를 생각하며 다시 골라 보세요.`]})}
+  if(D.quiz){const m=D.quiz.first.map((v,i)=>v?null:i).filter(v=>v!==null);if(m.length)out.push({k:'quiz',gain:25-S.best.quiz,r:[`놓친 문항 ${m.length}개(${m.map(i=>Q[i].topic).join(', ')})만 다시 풀어요.`]})}
+  return out.sort((a,b)=>b.gain-a.gain);
+}
+function feedback(){
+  const D=S.bestD,p=[];
+  // 모듈1
+  let t=D.m1.wrong===0?'계면활성제 분자를 한 번에 정확하게 조립하여, 물과 친한 <span class="hb">친수성기</span>와 기름과 친한 <span class="ht">친유성기</span>가 한 분자 안에 함께 있다는 구조를 잘 이해하고 있습니다. '
+    :`분자 조립 과정에서 부품을 ${D.m1.wrong}번 잘못 놓았지만, 피드백을 읽고 스스로 바로잡아 모형을 완성했습니다. 전하를 띤 머리는 물과, 긴 탄화수소 사슬은 기름과 친하다는 점을 한 번 더 정리해 두면 좋겠습니다. `;
+  t+=D.m1.compared?'표면 장력 실험에서는 순수한 물에서 거품이 바로 터지는 모습을 먼저 관찰한 뒤 계면활성제를 넣은 경우와 비교하여, <span class="hv">비교 실험</span>을 하는 과학적인 태도를 보여 주었습니다.'
+    :'표면 장력 실험에서 계면활성제를 넣은 거품은 확인했지만, 순수한 물과 비교하는 관찰은 하지 않았습니다. 비교 대상이 있어야 계면활성제가 <span class="hb">표면 장력을 낮춘다</span>는 결론을 자신 있게 말할 수 있습니다.';
+  p.push(['모듈 1 · 구조와 표면 장력',t]);
+  const f=D.m2.fails[0]+D.m2.fails[1];
+  t=f===0?'마이셀 배치를 두 라운드 모두 한 번에 성공했습니다. <span class="ht">꼬리는 기름때 안쪽</span>, <span class="hb">머리는 물이 있는 바깥쪽</span>을 향해야 기름때가 물속으로 분산된다는 세척 원리를 정확히 적용했습니다. '
+    :`마이셀 확인에서 ${f}번 틀린 배치가 있었지만, 거꾸로 된 분자를 찾아 고쳐 결국 기름때를 씻어 냈습니다. 확인을 누르기 전에 분자 하나하나의 방향을 스스로 점검하는 습관을 기르면 더 좋겠습니다. `;
+  if(D.m2.hints>0)t+=`힌트는 ${D.m2.hints}번 활용했습니다.`;
+  p.push(['모듈 2 · 마이셀',t]);
+  const w=ITEMS.filter(x=>!D.m3.first[x.id]).map(x=>x.t);
+  t=w.length===0?'네 가지 물건 모두에 알맞은 계면활성제를 처음부터 골라, 민감한 피부에는 <span class="hk">자극이 적은 천연 계면활성제</span>, 심한 오염에는 <span class="ha">세정력이 강한 합성 계면활성제</span>를 쓴다는 기준을 잘 세웠습니다. '
+    :`성분 고르기에서 ${w.join(', ')}의 첫 선택이 틀렸지만 피드백을 보고 바로잡았습니다. 세정력과 피부 자극은 함께 커진다는 점을 기억해 두세요. `;
+  t+=`잔류 세제 미션에서는 헹굼 버튼을 ${D.m3.taps}번 눌러 경고등을 모두 껐으며, 계면활성제가 남으면 피부 지방막 손상과 단백질 변성을 일으킬 수 있으므로 <span class="hk">충분히 헹구어야 한다</span>는 것을 체험했습니다.`;
+  p.push(['모듈 3 · 안전한 세정',t]);
+  const m=D.quiz.first.map((v,i)=>v?null:i).filter(v=>v!==null);
+  t=m.length===0?'점검 퀴즈 5문항을 모두 처음 시도에 맞혀 오늘 배운 핵심 개념을 확실히 정리했습니다.'
+    :`점검 퀴즈에서 ${5-m.length}문항을 처음 시도에 맞혔습니다. ${m.map(i=>Q[i].topic).join(', ')} 부분은 피드백을 보고 다시 맞혔으니, 해당 모듈의 화면을 떠올리며 한 번 더 복습해 보세요.`;
+  p.push(['점검 퀴즈',t]);
+  return p;
+}
+function renderResult(){
+  if(!S.done.quiz){$('#report').innerHTML='<p>모든 모듈과 퀴즈를 마치면 결과가 나타나요.</p>';return}
+  const tot=AREAS.reduce((s,a)=>s+Math.max(0,S.best[a.k]),0),g=gradeOf(tot);
+  const comment={A:'훌륭해요! 계면활성제의 구조, 세척 원리, 안전한 사용법을 모두 정확하게 이해했어요.',B:'잘했어요! 핵심 개념을 잘 이해했고, 몇 가지 과정만 다듬으면 최고 등급이에요.',C:'기본 개념은 익혔어요. 아래 보충 활동으로 부족한 부분을 채워 봐요.',D:'조금 더 연습이 필요해요. 보충 활동을 하나씩 해 보면 금방 올라갈 수 있어요.',F:'아직 어려운 부분이 많았어요. 보충 활동을 차근차근 다시 해 봐요.'}[g];
+  const D=S.bestD;
+  $('#report').innerHTML=`
+  <div class="rep-head">
+    <div><h2>미션 성공!</h2><div>${esc(S.cls)} ${esc(S.name)} · ${new Date().toLocaleDateString('ko-KR')}</div><div style="color:var(--muted);font-size:.95rem">마이셀 특공대 · 계면활성제 탐구</div></div>
+    <div class="brand" style="margin-left:0"><div><div class="name">EARTH <span>LJY</span></div><div class="mail">earthljy@ai.jne.kr</div></div></div>
+  </div>
+  <div class="grade"><div class="big" style="background:${GCOL[g]}">${g}</div>
+    <div><div style="font-size:1.3rem">총점 <span style="color:${GCOL[g]}">${tot}</span> / 100</div><div>${comment}</div>
+    <div style="font-size:.9rem;color:var(--muted)">평가 기준: A 90 이상 · B 80 이상 · C 70 이상 · D 60 이상 · F 60 미만</div></div></div>
+  <div class="bars">${AREAS.map(a=>{const v=Math.max(0,S.best[a.k]);return `<div class="bar"><span>${a.name}</span><span class="tr"><i style="width:${v*4}%;background:${v===25?'#23946a':v>=18?'#2b78d0':'#d9821f'}"></i></span><span class="v">${v}/25</span></div>`}).join('')}</div>
+  <div class="fbk"><h3 style="margin:14px 0 2px;color:var(--ok)">과제 수행 과정 피드백</h3>${feedback().map(([h,t])=>`<h4>${h}</h4><p>${t}</p>`).join('')}</div>
+  <h3 style="color:var(--ok);margin:14px 0 4px">학생이 고른 답</h3>
+  <ul class="answers">
+    ${ITEMS.map(x=>`<li>${x.t}: 처음 선택 <span class="${D.m3.first[x.id]?'hk':'ha'}">${D.m3.first[x.id]?(x.a==='nat'?'천연':'합성')+' (정답)':(x.a==='nat'?'합성':'천연')+' (오답)'}</span></li>`).join('')}
+    ${Q.map((x,i)=>{const c=D.quiz.chosen[i];const ok=D.quiz.first[i];return `<li>퀴즈 ${i+1}. ${x.q} → <span class="${ok?'hk':'ha'}">${c!==null&&c!==undefined?x.o[c]:'-'}${ok?' (정답)':' (오답, 정답: '+x.o[x.a]+')'}</span></li>`}).join('')}
+  </ul>
+  <h3 style="color:var(--ok);margin:14px 0 4px">수행 기록</h3>
+  <ul class="answers">${S.log.map(l=>`<li>${esc(l)}</li>`).join('')}</ul>`;
+  // 보충 안내
+  const gp=gaps();
+  if(!gp.length){$('#boost').innerHTML='<div class="msg ok">모든 수행 과정을 완벽하게 해냈어요. 더 보충할 활동이 없어요!</div>';return}
+  const next={F:60,D:70,C:80,B:90,A:null}[g];
+  const need=next?next-tot:0;
+  let head=next?`<span class="ht">${String.fromCharCode(g==='F'?68:g.charCodeAt(0)-1)}등급</span>까지 <span class="ha">${need}점</span>이 더 필요해요. 아래의 부족했던 과정만 골라 다시 해 보세요. 다시 한 결과가 더 좋으면 점수가 올라가요.`:'이미 A등급이에요. 만점에 도전하고 싶다면 아래 과정만 다시 해 보세요.';
+  let acc=0,mark=-1;if(next){gp.forEach((x,i)=>{if(mark<0){acc+=x.gain;if(acc>=need)mark=i}})}
+  $('#boost').innerHTML=`<div class="boost"><h3>등급 올리기 보충 활동</h3><p style="margin:0 0 6px">${head}</p>
+    ${gp.map((x,i)=>`<div class="item"><div style="min-width:0;flex:1 1 260px"><span class="hb">${AREAS.find(a=>a.k===x.k).name}</span> <span class="ht">(최대 +${x.gain}점)</span>${next&&i<=mark?' <span class="hk">· 추천</span>':''}<br>${x.r.join('<br>')}</div>
+    <button class="btn" data-k="${x.k}">이 과정만 다시 하기</button></div>`).join('')}</div>`;
+  $('#boost').querySelectorAll('button[data-k]').forEach(b=>b.onclick=()=>startRedo(b.dataset.k));
+}
+$('#btnShot').onclick=async()=>{
+  const btn=$('#btnShot');btn.disabled=true;btn.textContent='이미지 만드는 중…';
+  try{
+    if(typeof html2canvas!=='function')throw new Error('lib');
+    const c=await html2canvas($('#report'),{scale:2,backgroundColor:'#ffffff'});
+    const url=c.toDataURL('image/png'),fname=`마이셀특공대_${S.cls}_${S.name}.png`;
+    $('#shot').innerHTML=`<div class="msg info">다운로드가 시작되지 않으면 아래 이미지를 길게 누르거나 마우스 오른쪽 버튼을 눌러 <span class="hk">이미지 저장</span>을 선택하세요.</div><img src="${url}" alt="미션 성공 결과 이미지">`;
+    let dl=null;
+    if(window.claude&&typeof window.claude.use==='function'){try{dl=await window.claude.use('downloads')}catch(e){dl=null}}
+    if(dl){const blob=await new Promise(r=>c.toBlob(r,'image/png'));
+      try{await dl.save({filename:fname,data:blob})}catch(e){}}
+    else{const a=document.createElement('a');a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove()}
+  }catch(e){$('#shot').innerHTML='<div class="msg bad">이미지를 만들지 못했어요. 인터넷 연결을 확인한 뒤 다시 눌러 주세요.</div>'}
+  btn.disabled=false;btn.textContent='결과 이미지 다운로드';
+};
+
+/* ---------- 시작 ---------- */
+resetM1();resetM2();resetM3();resetQuiz();renderTabs();requestAnimationFrame(drawTension);
+})();
+</script>
